@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from '../screens/Home';
 import MovieDetail from '../screens/MovieDetail';

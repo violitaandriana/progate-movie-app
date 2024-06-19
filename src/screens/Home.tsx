@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { View, Text, StyleSheet, Button } from 'react-native'
 
 export default function Home({ navigation }: any): JSX.Element {
