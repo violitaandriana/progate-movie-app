@@ -1,9 +1,8 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Feather } from '@expo/vector-icons';
-import Home from '../screens/Home';
-import Search from '../screens/Search';
-import Favorite from '../screens/Favorite';
+import { Feather } from "@expo/vector-icons";
+import Search from "../screens/Search";
+import Favorite from "../screens/Favorite";
 import HomeStackNavigation from "./HomeStackNavigation";
 
 const Tab = createBottomTabNavigator();
@@ -11,11 +10,11 @@ const Tab = createBottomTabNavigator();
 const BottomTabNavigator = (): JSX.Element => (
   <Tab.Navigator>
     {/* Home */}
-    <Tab.Screen 
+    <Tab.Screen
       name="Home"
       component={HomeStackNavigation} // nesting navigation stack ke dlm tab
       options={{
-        tabBarIcon: ({color}) => (
+        tabBarIcon: ({ color }) => (
           <Feather name="home" size={28} color={color} />
         ),
         headerShown: false,
@@ -44,6 +43,6 @@ const BottomTabNavigator = (): JSX.Element => (
       }}
     />
   </Tab.Navigator>
-)
+);
 
 export default BottomTabNavigator;
