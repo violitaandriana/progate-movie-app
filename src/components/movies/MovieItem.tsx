@@ -46,7 +46,11 @@ export default function MovieItem({
           <Text style={styles.movieTitle}>{movie.title}</Text>
           <View style={styles.ratingContainer}>
             <FontAwesome name="star" size={16} color="yellow" />
-            <Text style={styles.rating}>{movie.vote_average.toFixed(1)}</Text>
+            <Text style={styles.rating}>
+              {movie.vote_average !== undefined
+                ? movie.vote_average.toFixed(1)
+                : movie.vote_average}
+            </Text>
           </View>
         </LinearGradient>
       </ImageBackground>
