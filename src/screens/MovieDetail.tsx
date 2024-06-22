@@ -7,7 +7,9 @@ import {
   StyleSheet,
   FlatList,
   ScrollView,
+  Pressable,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
 import { EXPO_API_ACCESS_TOKEN } from "../constant";
 import { Movie } from "../types/app";
@@ -27,11 +29,21 @@ const coverImageSize = {
 export default function MovieDetail({ route }: any): JSX.Element {
   const [movieDetail, setMovieDetail] = useState<Movie>([]);
   const [recommendations, setRecommendations] = useState<Movie>([]);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
+    // clearAllData();
     getMovieDetail();
     getMovieRecommendation();
+    checkIsFavorite(id);
   }, []);
+
+  // function clearAllData() {
+  //   AsyncStorage.getAllKeys()
+  //     .then((keys) => AsyncStorage.multiRemove(keys))
+  //     .then(() => alert("success"));
+  // }
+
   // dapat id yg dikirim di MovieItem dr navigation?
   const { id } = route.params;
   const getMovieDetail = (): void => {
@@ -66,6 +78,74 @@ export default function MovieDetail({ route }: any): JSX.Element {
       .catch((err) => console.error(err));
   };
 
+  const addFavorite = async (movie: Movie): Promise<void> => {
+    try {
+      // get all data from AsyncStorage
+      const initialData: string | null =
+        await AsyncStorage.getItem("@FavoriteList");
+
+      let favMovieList: Movie[] = [];
+
+      // parse = convert JSON to object, to load the data
+      if (initialData !== null) {
+        favMovieList = [...JSON.parse(initialData), movie];
+      } else {
+        favMovieList = [movie];
+      }
+
+      // save data to favMovieList
+      // stringify = convert JS to JSON, to save the data
+      await AsyncStorage.setItem("@FavoriteList", JSON.stringify(favMovieList));
+      setIsFavorite(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeFavorite = async (id: number): Promise<void> => {
+    try {
+      // get all data from AsyncStorage
+      const initialData: string | null =
+        await AsyncStorage.getItem("@FavoriteList");
+
+      let favMovieList: Movie[] = [];
+      if (initialData !== null) {
+        favMovieList = JSON.parse(initialData);
+      }
+
+      // delete movie from storage
+      const updatedFavMovieList = favMovieList.filter(
+        (movie) => movie.id !== id
+      );
+
+      await AsyncStorage.setItem(
+        "@FavoriteList",
+        JSON.stringify(updatedFavMovieList)
+      );
+
+      setIsFavorite(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const checkIsFavorite = async (id: number): Promise<void> => {
+    try {
+      // get all data from AsyncStorage
+      const initialData: string | null =
+        await AsyncStorage.getItem("@FavoriteList");
+
+      // setIsFavorite true if movie's id is in favMovieList
+      if (initialData !== null) {
+        const favMovieList: Movie[] = JSON.parse(initialData);
+        const isFav = favMovieList.some((movie) => movie.id === id);
+        setIsFavorite(isFav);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ScrollView>
       {/* image, title, & rate */}
@@ -79,14 +159,30 @@ export default function MovieDetail({ route }: any): JSX.Element {
         <Text style={styles.movieTitle}>{movieDetail.original_title}</Text>
         <View style={styles.ratingContainer}>
           <FontAwesome name="star" size={16} color="yellow" />
-          <Text style={styles.rating}>{movieDetail.vote_average}</Text>
+          <Text style={styles.rating}>
+            {movieDetail.vote_average !== undefined
+              ? movieDetail.vote_average.toFixed(1)
+              : movieDetail.vote_average}
+          </Text>
+          <Pressable
+            style={styles.favoriteIcon}
+            onPress={() =>
+              isFavorite ? removeFavorite(id) : addFavorite(movieDetail)
+            }
+          >
+            <FontAwesome
+              name={isFavorite ? "heart" : "heart-o"}
+              size={20}
+              color="white"
+            />
+          </Pressable>
         </View>
       </ImageBackground>
 
       {/* description */}
       <View style={styles.descriptionContainer}>
         <Text>{movieDetail.overview}</Text>
-        <View style={styles.criteriaContainer}>
+        <View>
           <Text style={styles.bold}>Original Language</Text>
           <Text>{movieDetail.original_language}</Text>
           <Text style={styles.bold}>Popularity</Text>
@@ -127,30 +223,31 @@ export default function MovieDetail({ route }: any): JSX.Element {
 const styles = StyleSheet.create({
   backgroundImage: {
     width: "100%",
-    // height: "64%"
+    height: 200,
+    justifyContent: "flex-end",
     paddingBottom: 20,
-  },
-  backgroundImageStyle: {
-    borderRadius: 8,
   },
   movieTitle: {
     color: "white",
     fontWeight: "bold",
     fontSize: 20,
     marginLeft: 20,
-    marginTop: "44%",
-    display: "flex",
-    alignItems: "flex-end",
   },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 2,
     marginLeft: 20,
+    gap: 2,
   },
   rating: {
     color: "yellow",
     fontWeight: "700",
+    marginLeft: 5,
+  },
+  favoriteIcon: {
+    position: "absolute",
+    top: 0,
+    right: 14,
   },
   descriptionContainer: {
     marginHorizontal: 20,
@@ -162,7 +259,6 @@ const styles = StyleSheet.create({
   },
   header: {
     marginLeft: 6,
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
     marginTop: 20,
