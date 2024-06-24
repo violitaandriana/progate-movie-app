@@ -1,9 +1,9 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
-import Search from "../screens/Search";
 import HomeStackNavigation from "./HomeStackNavigation";
 import FavoriteStackNavigation from "./FavoriteStackNavigation";
+import SearchStackNavigator from "./SearchStackNavigator";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +23,7 @@ const BottomTabNavigator = (): JSX.Element => (
     {/* Search */}
     <Tab.Screen
       name="Search"
-      component={Search}
+      component={SearchStackNavigator}
       options={{
         tabBarIcon: ({ color }) => (
           <Feather name="search" size={28} color={color} />
