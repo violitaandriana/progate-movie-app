@@ -26,6 +26,7 @@ const coverImageSize = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function MovieDetail({ route }: any): JSX.Element {
   const [movieDetail, setMovieDetail] = useState<Movie>([]);
   const [recommendations, setRecommendations] = useState<Movie>([]);

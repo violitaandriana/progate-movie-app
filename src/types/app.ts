@@ -46,3 +46,8 @@ export interface MovieListProps {
   path: string;
   coverType: "poster" | "backdrop";
 }
+
+export interface Category {
+  id: number;
+  name: string;
+}

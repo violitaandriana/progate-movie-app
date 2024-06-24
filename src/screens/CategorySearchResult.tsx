@@ -1,10 +1,9 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { useState } from "react";
-import { View, TextInput, StyleSheet, FlatList } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
-import { EXPO_API_ACCESS_TOKEN } from "../../constant";
-import { Movie } from "../../types/app";
-import MovieItem from "../movies/MovieItem";
+import { useState, useEffect } from "react";
+import { View, Text, FlatList, StyleSheet } from "react-native";
+import { EXPO_API_ACCESS_TOKEN } from "../constant";
+import { Movie } from "../types/app";
+import MovieItem from "../components/movies/MovieItem";
 
 const coverImageSize = {
   poster: {
@@ -13,12 +12,17 @@ const coverImageSize = {
   },
 };
 
-export default function KeywordSearch(): JSX.Element {
-  const [keyword, setKeyword] = useState<string>("");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function CategorySearchResult({ route }: any): JSX.Element {
+  const { genreId, genreName } = route.params;
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  const getMovieByKeyword = (keyword: string): void => {
-    const url = `https://api.themoviedb.org/3/search/movie?query=${keyword}`; 
+  useEffect(() => {
+    getMovieByGenre(genreId);
+  }, []);
+
+  const getMovieByGenre = (genreId: number): void => {
+    const url = `https://api.themoviedb.org/3/discover/movie?with_genres=${genreId}`;
     const options = {
       method: "GET",
       headers: {
@@ -29,30 +33,13 @@ export default function KeywordSearch(): JSX.Element {
     fetch(url, options)
       .then(async (response) => await response.json())
       .then((response) => {
-        setMovies(response.results); 
+        setMovies(response.results);
       })
       .catch((err) => console.error(err));
   };
-
   return (
     <View>
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder="Input movie's title here"
-          onChangeText={setKeyword}
-          onSubmitEditing={() => {
-            getMovieByKeyword(keyword);
-          }}
-          defaultValue={keyword}
-        />
-        <FontAwesome
-          name="search"
-          size={20}
-          color="#5e5e5e"
-          style={styles.icon}
-        />
-      </View>
+      <Text style={styles.title}>Result of {genreName} Genre</Text>
       {/* list of movies */}
       <FlatList
         style={styles.movieList}
@@ -77,27 +64,16 @@ export default function KeywordSearch(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    backgroundColor: "#e7e7e7",
-    height: 50,
-  },
-  container: {
-    marginTop: 10,
-    justifyContent: "center",
-  },
-  icon: {
-    position: "absolute",
-    right: 20,
+  title: {
+    fontSize: 22,
+    textAlign: "center",
+    marginVertical: 14,
   },
   movieList: {
     paddingLeft: 4,
-    marginTop: 20,
   },
   listContainer: {
-    paddingBottom: 360, 
+    paddingBottom: 80, 
     gap: 4,
     alignItems: "center",
     justifyContent: "center",
